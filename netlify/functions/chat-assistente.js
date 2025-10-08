@@ -1,11 +1,11 @@
 // netlify/functions/chat-assistente.js
 
 // Importa o SDK do Google Gemini
-const { GoogleGenAI } = require('@google/genai');
+import { GoogleGenAI } from '@google/genai';
 
 // Inicializa a IA. A chave é lida automaticamente da variável de ambiente no Netlify.
 // Certifique-se de definir a variável GEMINI_API_KEY no painel do Netlify.
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({}); 
 
 // O modelo que usaremos, ideal para raciocínio e velocidade
 const MODEL_NAME = "gemini-2.5-flash"; 
