@@ -1,9 +1,13 @@
 {
-  "name": "dourogf-ia-backend",
+  "name": "nome-do-seu-projeto",
   "version": "1.0.0",
-  "description": "Netlify Function para assistente de IA do DouroGF 2026",
-  "main": "netlify/functions/chat-assistente.js",
+  "description": "Assistente de IA para Douro Granfondo",
+  "type": "module", 
+  "scripts": {
+    "start": "netlify dev"
+  },
   "dependencies": {
-    "@google/genai": "^0.15.0"
+    "@google/genai": "^0.15.0"  
+  
   }
 }
