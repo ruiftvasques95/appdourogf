@@ -29,12 +29,13 @@
         }
 
         .chat-header {
-            background-color: #5b28a8;
+            background-color: #5b28a8; /* Cor principal */
             color: white;
             padding: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 1.1em;
         }
 
         .chat-header h1 {
@@ -42,224 +43,304 @@
             font-size: 1.2em;
         }
 
-        .chat-header span {
-            font-size: 0.8em;
-            background-color: #7d45d8;
-            padding: 4px 8px;
-            border-radius: 15px;
-        }
-
-        .chat-messages {
+        .messages-container {
             flex-grow: 1;
             padding: 15px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
+            background-color: #e9e9e9;
         }
 
         .message {
-            max-width: 80%;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             padding: 10px;
-            border-radius: 10px;
+            border-radius: 15px;
+            max-width: 80%;
             line-height: 1.4;
-        }
-
-        .ia-message {
-            background-color: #f1f0f0;
-            align-self: flex-start;
-            border-top-left-radius: 0;
-            color: #333;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+            word-wrap: break-word;
         }
 
         .user-message {
             background-color: #5b28a8;
             color: white;
-            align-self: flex-end;
+            margin-left: auto;
             border-top-right-radius: 0;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
         }
 
-        .message strong {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 0.9em;
+        .ia-message {
+            background-color: #ffffff;
+            color: #333;
+            margin-right: auto;
+            border: 1px solid #ddd;
+            border-top-left-radius: 0;
         }
 
         .chat-input {
-            display: flex;
-            padding: 15px;
-            border-top: 1px solid #eee;
+            display: flex; /* Garante que os botões e input ficam bem alinhados */
+            padding: 10px;
+            border-top: 1px solid #ccc;
+            background-color: #fff;
         }
 
-        .chat-input input {
+        #user-input {
             flex-grow: 1;
-            padding: 10px 15px;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 20px;
+            margin-right: 8px;
             font-size: 1em;
-            margin-right: 10px;
-            transition: border-color 0.3s;
         }
 
-        .chat-input input:focus {
-            border-color: #5b28a8;
-            outline: none;
-        }
-
-        .chat-input button {
+        #send-button {
             background-color: #5b28a8;
             color: white;
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 10px 15px;
+            border-radius: 20px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
 
-        .chat-input button:hover {
-            background-color: #7d45d8;
+        #send-button:hover:not(:disabled) {
+            background-color: #7a46c6;
         }
 
-        .error-message {
-            background-color: #ffe0e0;
+        #send-button:disabled {
+            background-color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        /* ESTILOS DO BOTÃO DE VOZ */
+        #voice-button {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            border-radius: 50%; 
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            line-height: 40px; 
+            padding: 0;
+            margin-right: 8px; 
+            transition: background-color 0.2s, box-shadow 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #voice-button.recording {
+            background-color: #ff4d4d; 
+            color: white;
+            box-shadow: 0 0 10px rgba(255, 77, 77, 0.7);
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.05);
+            }
+        }
+        /* ESTILOS DA CAIXA DE ERRO */
+        #error-box {
+            background-color: #ffdddd;
             color: #d8000c;
             padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            margin: 15px;
+            margin: 10px;
             border: 1px solid #d8000c;
+            border-radius: 8px;
+            display: none; /* Escondida por padrão */
             font-size: 0.9em;
-            display: none; /* Esconder por padrão */
         }
-        
-        .loading-dots {
-            font-weight: bold;
-            animation: blink 1.5s infinite;
-        }
-        
-        @keyframes blink {
-            0% { opacity: 0.2; }
-            50% { opacity: 1; }
-            100% { opacity: 0.2; }
-        }
+
     </style>
 </head>
 <body>
+
     <div class="chat-container">
         <div class="chat-header">
-            <h1>Assistente do DouroGF 2026</h1>
-            <span>Pronto</span>
-        </div>
-        <div class="chat-messages" id="messages">
-            <div class="message ia-message">
-                <strong>Assistente IA</strong>
-                Olá! Pode perguntar-me qualquer coisa sobre o regulamento do Love Tiles Douro Granfondo 2026. Qual é a sua questão?
-            </div>
+            <h1>Assistente DouroGF 2026</h1>
         </div>
         
-        <div class="error-message" id="error-box"></div>
+        <div id="error-box"></div>
 
-        <form class="chat-input" id="chat-form">
-            <input type="text" id="user-input" placeholder="Digite a sua pergunta aqui..." required>
-            <button type="submit" id="send-button">
-                &rarr;
-            </button>
-        </form>
+        <div class="messages-container" id="messages-container">
+            <div class="message ia-message">
+                <strong>Assistente IA</strong> <span>Olá! Sou o assistente do Love Tiles Douro Granfondo 2026. Pergunte-me qualquer coisa sobre o regulamento.</span>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <button id="voice-button" type="button" title="Perguntar por Voz">🎤</button>
+            <input type="text" id="user-input" placeholder="Pergunte sobre o regulamento...">
+            <button id="send-button" title="Enviar Mensagem">Enviar</button>
+        </div>
     </div>
 
     <script>
-        // ESTA É A LINHA CRÍTICA QUE TINHA DE SER CORRIGIDA
-        // O caminho da Vercel é /api/ seguido pelo nome da função.
-        const API_ENDPOINT = '/api/chat-assistente'; 
-        
-        const chatForm = document.getElementById('chat-form');
-        const userInput = document.getElementById('user-input');
-        const messagesContainer = document.getElementById('messages');
-        const sendButton = document.getElementById('send-button');
-        const errorBox = document.getElementById('error-box');
-
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const userQuery = userInput.value.trim();
-            if (!userQuery) return;
-
-            // 1. Mostrar a mensagem do utilizador
-            appendMessage(userQuery, 'user');
-            userInput.value = '';
-            errorBox.style.display = 'none';
+        document.addEventListener('DOMContentLoaded', () => {
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.getElementById('send-button');
+            const messagesContainer = document.getElementById('messages-container');
+            const errorBox = document.getElementById('error-box');
+            const voiceButton = document.getElementById('voice-button'); 
             
-            // 2. Mostrar a mensagem de loading da IA
-            const loadingMessage = appendMessage('A responder <span class="loading-dots">...</span>', 'ia');
+            // Endpoint da API na Vercel
+            const API_ENDPOINT = '/api/chat-assistente'; 
+            
+            // **********************************************
+            // Lógica de Reconhecimento de Voz
+            // **********************************************
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            let recognition = null;
+            let isRecording = false;
 
-            // Desativar input e botão
-            sendButton.disabled = true;
-            userInput.disabled = true;
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.lang = 'pt-PT'; 
+                recognition.interimResults = false; 
+                recognition.maxAlternatives = 1;
 
-            try {
-                // 3. Fazer o pedido à nossa função Vercel
-                const response = await fetch(API_ENDPOINT, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: userQuery }),
+                recognition.onstart = () => {
+                    isRecording = true;
+                    voiceButton.classList.add('recording');
+                    userInput.placeholder = "A ouvir... Fale agora.";
+                    errorBox.style.display = 'none';
+                };
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    userInput.value = transcript; 
+                    voiceButton.classList.remove('recording');
+                    // Dispara o envio da mensagem após a conclusão do reconhecimento
+                    sendButton.click(); 
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Erro de Reconhecimento de Voz:', event.error);
+                    voiceButton.classList.remove('recording');
+                    userInput.placeholder = "Pergunte sobre o regulamento...";
+                    errorBox.textContent = `Erro de voz: ${event.error}. Clique novamente para tentar.`;
+                    errorBox.style.display = 'block';
+                    isRecording = false;
+                };
+
+                recognition.onend = () => {
+                    isRecording = false;
+                    voiceButton.classList.remove('recording');
+                    userInput.placeholder = "Pergunte sobre o regulamento...";
+                };
+
+                voiceButton.addEventListener('click', () => {
+                    if (isRecording) {
+                        recognition.stop();
+                    } else {
+                        try {
+                            // Limpa o input antes de começar a gravar
+                            userInput.value = '';
+                            recognition.start();
+                        } catch (e) {
+                            console.error("Erro ao iniciar reconhecimento:", e);
+                            errorBox.textContent = "Não foi possível iniciar o microfone. Verifique as permissões do navegador.";
+                            errorBox.style.display = 'block';
+                        }
+                    }
                 });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP error! status: ${response.status}, Details: ${errorText}`);
-                }
-
-                const data = await response.json();
-                
-                // 4. Substituir a mensagem de loading pela resposta da IA
-                loadingMessage.querySelector('span').innerHTML = data.response;
-
-            } catch (error) {
-                console.error('Erro na comunicação com a API:', error);
-                
-                // 5. Substituir o loading por uma mensagem de falha
-                loadingMessage.querySelector('span').innerHTML = 'Falha na comunicação.';
-                
-                // 6. Mostrar o erro de ligação na caixa vermelha
-                errorBox.textContent = "Erro: Não foi possível ligar ao assistente. Por favor, verifique a sua ligação ou se o 'API_ENDPOINT' está correto.";
-                errorBox.style.display = 'block';
-
-            } finally {
-                // Reativar input e botão
-                sendButton.disabled = false;
-                userInput.disabled = false;
-                userInput.focus();
-                
-                // Scroll para a mensagem mais recente
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        });
-
-        function appendMessage(text, sender) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            
-            if (sender === 'user') {
-                messageDiv.classList.add('user-message');
-                messageDiv.innerHTML = text;
             } else {
-                messageDiv.classList.add('ia-message');
-                messageDiv.innerHTML = `<strong>Assistente IA</strong> <span>${text}</span>`;
+                // Se o navegador não suportar, esconde o botão de voz
+                voiceButton.style.display = 'none';
+                console.warn("Reconhecimento de voz não suportado neste navegador.");
             }
-            
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll para o fim
-            
-            return messageDiv;
-        }
+
+
+            // ******************************************************************
+            // Lógica de Envio de Mensagem (Comunicação com a Vercel/Gemini)
+            // ******************************************************************
+            sendButton.addEventListener('click', async () => {
+                const prompt = userInput.value.trim();
+                if (!prompt) return;
+
+                // 1. Desativar input e botão para evitar envios duplicados
+                sendButton.disabled = true;
+                userInput.disabled = true;
+                userInput.value = '';
+                errorBox.style.display = 'none';
+
+                // 2. Mostrar a mensagem do usuário
+                appendMessage(prompt, 'user');
+
+                // 3. Mostrar mensagem de carregamento da IA
+                const iaMessage = appendMessage('A responder...', 'ia');
+                const iaSpan = iaMessage.querySelector('span');
+
+
+                try {
+                    // 4. Chamada à API da Vercel
+                    const response = await fetch(API_ENDPOINT, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ prompt }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    // 5. Atualizar a resposta da IA
+                    iaSpan.innerHTML = data.response.trim();
+
+                } catch (error) {
+                    console.error('Erro na comunicação com a API:', error);
+                    iaSpan.innerHTML = 'Falha na comunicação. Por favor, tente novamente.';
+                    
+                    // Mostrar o erro de ligação na caixa vermelha
+                    errorBox.textContent = "Erro: Não foi possível ligar ao assistente. Verifique a sua ligação ou os logs da Vercel.";
+                    errorBox.style.display = 'block';
+
+                } finally {
+                    // Reativar input e botão
+                    sendButton.disabled = false;
+                    userInput.disabled = false;
+                    userInput.focus();
+                    
+                    // Scroll para a mensagem mais recente
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
+            });
+
+            // Função para adicionar mensagens
+            function appendMessage(text, sender) {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                
+                if (sender === 'user') {
+                    messageDiv.classList.add('user-message');
+                    messageDiv.innerHTML = text;
+                } else {
+                    messageDiv.classList.add('ia-message');
+                    messageDiv.innerHTML = `<strong>Assistente IA</strong> <span>${text}</span>`;
+                }
+                
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight; 
+                
+                return messageDiv;
+            }
+
+            // Permitir o envio com a tecla Enter
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendButton.click();
+                }
+            });
+        });
     </script>
 </body>
 </html>
