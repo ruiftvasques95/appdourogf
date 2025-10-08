@@ -1,17 +1,16 @@
 // api/chat-assistente.js
+// Usamos 'require' (CommonJS) para garantir a estabilidade na Vercel e evitar o erro ERR_REQUIRE_ESM
 const { GoogleGenAI } = require('@google/genai');
 
 // ------------------------------------------------------------------
 // 1. Defina o texto do Regulamento (COLE O SEU TEXTO AQUI)
 // A IA utilizará este texto como a sua única fonte de conhecimento.
-// Use aspas graves (`) para permitir múltiplas linhas.
 // ------------------------------------------------------------------
 const REGULAMENTO_TEXTO = `
     O Love Tiles Douro Granfondo 2026 realizar-se-á no dia 20 de Outubro de 2026. 
     As inscrições custam 60€.
-    O percurso tem 120km e 2.500m de acumulado.
-    Os kits de participante devem ser levantados no dia anterior ao evento.
     O percurso de Granfondo (longo) tem 120km e o percurso de Mediofondo (curto) tem 80km.
+    Os kits de participante devem ser levantados no dia anterior ao evento.
     Em caso de cancelamento, a organização não garante o reembolso.
     `; 
 // ------------------------------------------------------------------
@@ -34,7 +33,7 @@ const SYSTEM_INSTRUCTION = `
     ---
 `;
 
-// 3. O formato CommonJS é o mais estável para a Vercel
+// 3. O formato 'module.exports' corrige o erro de exportação na Vercel
 module.exports = async function (req, res) {
     
     // Certificar-se de que é um método POST
