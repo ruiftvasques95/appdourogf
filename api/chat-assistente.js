@@ -1,18 +1,23 @@
 // api/chat-assistente.js
-
-// Usar 'require' em vez de 'import' para evitar o erro de exportação da Vercel
 const { GoogleGenAI } = require('@google/genai');
 
+// ------------------------------------------------------------------
 // 1. Defina o texto do Regulamento (COLE O SEU TEXTO AQUI)
-// Mantenha o texto do seu regulamento aqui
+// A IA utilizará este texto como a sua única fonte de conhecimento.
+// Use aspas graves (`) para permitir múltiplas linhas.
+// ------------------------------------------------------------------
 const REGULAMENTO_TEXTO = `
     O Love Tiles Douro Granfondo 2026 realizar-se-á no dia 20 de Outubro de 2026. 
     As inscrições custam 60€.
     O percurso tem 120km e 2.500m de acumulado.
     Os kits de participante devem ser levantados no dia anterior ao evento.
-`; 
+    O percurso de Granfondo (longo) tem 120km e o percurso de Mediofondo (curto) tem 80km.
+    Em caso de cancelamento, a organização não garante o reembolso.
+    `; 
+// ------------------------------------------------------------------
 
-// A Vercel lê esta variável de ambiente que configuraste (GEMINI_API_KEY)
+
+// A Vercel lê a variável de ambiente GEMINI_API_KEY que configuraste
 const apiKey = process.env.GEMINI_API_KEY; 
 const ai = new GoogleGenAI({ apiKey });
 
@@ -21,7 +26,7 @@ const SYSTEM_INSTRUCTION = `
     Você é um assistente especialista no regulamento do Love Tiles Douro Granfondo 2026.
     Sua tarefa é responder à pergunta do usuário de forma concisa e precisa, baseando-se
     SOMENTE no CONTEÚDO fornecido abaixo.
-    Se a resposta não estiver no CONTEÚDO, responda de forma educada que não tem essa informação.
+    Se a resposta não estiver no CONTEÚDO, responda de forma educada que não tem essa informação no regulamento.
 
     CONTEÚDO DO REGULAMENTO:
     ---
@@ -29,7 +34,7 @@ const SYSTEM_INSTRUCTION = `
     ---
 `;
 
-// 3. O formato CommonJS é mais estável para a Vercel
+// 3. O formato CommonJS é o mais estável para a Vercel
 module.exports = async function (req, res) {
     
     // Certificar-se de que é um método POST
@@ -46,7 +51,7 @@ module.exports = async function (req, res) {
 
         // 5. Chamar a API do Gemini
         const result = await ai.models.generateContent({
-            model: "gemini-2.5-flash", 
+            model: "gemini-2.5-flash", // Modelo rápido
             contents: fullContent, // Envia o texto completo
             config: {
                 temperature: 0.1,
