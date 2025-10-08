@@ -15,7 +15,7 @@ const REGULAMENTO_TEXTO = `
 
 
 // A Vercel lê a variável de ambiente GEMINI_API_KEY
-const apiKey = process.env.GEMINI_API_KEY; 
+const apiKey = process.env.Douro2026;
 const ai = new GoogleGenAI({ apiKey });
 
 // 2. Crie a Instrução do Sistema injetando o texto real do regulamento
