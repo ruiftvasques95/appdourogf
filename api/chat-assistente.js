@@ -1,26 +1,36 @@
 // api/chat-assistente.js
 
-import { GoogleGenAI } from '@google/genai';
+// Usar 'require' em vez de 'import' para evitar o erro de exportação da Vercel
+const { GoogleGenAI } = require('@google/genai');
 
-// A Vercel lê esta variável de ambiente que configuraste
+// 1. Defina o texto do Regulamento (COLE O SEU TEXTO AQUI)
+// Mantenha o texto do seu regulamento aqui
+const REGULAMENTO_TEXTO = `
+    O Love Tiles Douro Granfondo 2026 realizar-se-á no dia 20 de Outubro de 2026. 
+    As inscrições custam 60€.
+    O percurso tem 120km e 2.500m de acumulado.
+    Os kits de participante devem ser levantados no dia anterior ao evento.
+`; 
+
+// A Vercel lê esta variável de ambiente que configuraste (GEMINI_API_KEY)
 const apiKey = process.env.GEMINI_API_KEY; 
 const ai = new GoogleGenAI({ apiKey });
 
-// 1. Criar a Promp de Engenharia Estruturada (o seu regulamento)
+// 2. Crie a Instrução do Sistema injetando o texto real do regulamento
 const SYSTEM_INSTRUCTION = `
     Você é um assistente especialista no regulamento do Love Tiles Douro Granfondo 2026.
-    A sua tarefa é responder à pergunta do usuário de forma concisa e precisa,
-    baseando-se SOMENTE no CONTEÚDO fornecido abaixo.
-    Se a resposta não estiver explicitamente no CONTEÚDO, responda de forma educada
-    que não tem essa informação no regulamento.
+    Sua tarefa é responder à pergunta do usuário de forma concisa e precisa, baseando-se
+    SOMENTE no CONTEÚDO fornecido abaixo.
+    Se a resposta não estiver no CONTEÚDO, responda de forma educada que não tem essa informação.
 
     CONTEÚDO DO REGULAMENTO:
-    {DOCUMENTO_TEXTO}
-    <O SEU REGULAMENTO DEVE ESTAR AQUI>
+    ---
+    ${REGULAMENTO_TEXTO} 
+    ---
 `;
 
-// O formato de exportação para a Vercel (Node.js/Express) é um handler padrão
-export default async function (req, res) {
+// 3. O formato CommonJS é mais estável para a Vercel
+module.exports = async function (req, res) {
     
     // Certificar-se de que é um método POST
     if (req.method !== 'POST') {
@@ -31,16 +41,19 @@ export default async function (req, res) {
         // A prompt do usuário vem do frontend no corpo do pedido
         const { prompt } = req.body;
         
-        // 2. Chamar a API do Gemini
+        // 4. Concatena a instrução do sistema e a pergunta do utilizador
+        const fullContent = SYSTEM_INSTRUCTION + "\n\nPergunta do Utilizador: " + prompt;
+
+        // 5. Chamar a API do Gemini
         const result = await ai.models.generateContent({
-            model: "gemini-2.5-flash", // Use o modelo de melhor custo-benefício e velocidade
-            contents: SYSTEM_INSTRUCTION.replace('<O SEU REGULAMENTO DEVE ESTAR AQUI>', prompt), // Aqui usa-se a sua instrução
+            model: "gemini-2.5-flash", 
+            contents: fullContent, // Envia o texto completo
             config: {
                 temperature: 0.1,
             },
         });
 
-        // 3. Devolver a resposta da IA para o Frontend
+        // 6. Devolver a resposta da IA para o Frontend
         res.status(200).json({ response: result.text });
 
     } catch (error) {
