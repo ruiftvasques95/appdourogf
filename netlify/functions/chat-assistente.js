@@ -1,21 +1,21 @@
 // netlify/functions/chat-assistente.js
 
-// Importa o SDK do Google Gemini
+// 1. IMPORTAÇÃO: Usamos a sintaxe de módulo 'import' (ES Modules)
 import { GoogleGenAI } from '@google/genai';
 
-// Inicializa a IA. A chave é lida automaticamente da variável de ambiente no Netlify.
-// Certifique-se de definir a variável GEMINI_API_KEY no painel do Netlify.
+// Inicializa a IA. O SDK lê a variável GEMINI_API_KEY automaticamente do Netlify.
 const ai = new GoogleGenAI({}); 
 
-// O modelo que usaremos, ideal para raciocínio e velocidade
+// O modelo que usaremos.
 const MODEL_NAME = "gemini-2.5-flash"; 
 
 /**
- * Função handler que o Netlify executa quando o frontend faz um POST para este endpoint.
+ * Função handler principal que o Netlify executa para responder ao POST.
  * O nome da função (chat-assistente) define a URL do endpoint: /.netlify/functions/chat-assistente
  */
+// 2. EXPORTAÇÃO: Usamos o formato 'exports.handler' para compatibilidade total com o Netlify
 exports.handler = async (event, context) => {
-    // 1. Verificar o método HTTP
+    // 3. Verifica se o método é POST
     if (event.httpMethod !== 'POST') {
         return {
             statusCode: 405,
@@ -23,45 +23,36 @@ exports.handler = async (event, context) => {
         };
     }
 
-    // 2. Analisar o corpo da requisição
-    let body;
+    // 4. ANÁLISE DO BODY: A correção final que resolve a falha assíncrona
+    // Assumimos que o frontend envia JSON válido.
     try {
-        body = JSON.parse(event.body);
-    } catch (e) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ error: 'Corpo da requisição inválido (JSON esperado).' })
-        };
-    }
+        const { userQuery, context: documentContext } = JSON.parse(event.body);
 
-    const { userQuery, context: documentContext } = body;
+        if (!userQuery || !documentContext) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({ error: 'Parâmetros "userQuery" ou "context" em falta.' })
+            };
+        }
 
-    if (!userQuery || !documentContext) {
-        return {
-            statusCode: 400,
-            body: JSON.stringify({ error: 'Parâmetros "userQuery" ou "context" em falta.' })
-        };
-    }
+        // 5. Cria a Prompt de Engenharia
+        const prompt = `
+            Você é um assistente especialista no regulamento do Love Tiles Douro Granfondo 2026.
+            A sua tarefa é responder à PERGUNTA do usuário de forma concisa e precisa, 
+            baseando-se SOMENTE no CONTEXTO fornecido abaixo.
 
-    // 3. Criar a Prompt de Engenharia (Instrução para a IA)
-    const prompt = `
-        Você é um assistente especialista no regulamento do Love Tiles Douro Granfondo 2026.
-        A sua tarefa é responder à PERGUNTA do usuário de forma concisa e precisa, 
-        baseando-se SOMENTE no CONTEXTO fornecido abaixo.
+            Se a resposta não estiver explicitamente no CONTEXTO, responda de forma educada 
+            dizendo que a informação não consta no regulamento.
 
-        Se a resposta não estiver explicitamente no CONTEXTO, responda de forma educada 
-        dizendo que a informação não consta no regulamento.
+            --- CONTEXTO DO REGULAMENTO ---
+            ${documentContext}
+            --- FIM DO CONTEXTO ---
 
-        --- CONTEXTO DO REGULAMENTO ---
-        ${documentContext}
-        --- FIM DO CONTEXTO ---
+            PERGUNTA DO USUÁRIO: ${userQuery}
+            RESPOSTA:
+        `;
 
-        PERGUNTA DO USUÁRIO: ${userQuery}
-        RESPOSTA:
-    `;
-
-    try {
-        // 4. Chamar a API do Gemini
+        // 6. Chamar a API do Gemini (Usa 'await' devido ao 'async' na linha 20)
         const result = await ai.models.generateContent({
             model: MODEL_NAME,
             contents: prompt,
@@ -70,7 +61,7 @@ exports.handler = async (event, context) => {
             }
         });
 
-        // 5. Devolver a resposta da IA para o frontend
+        // 7. Devolver a resposta da IA para o frontend
         const aiResponse = result.text.trim();
 
         return {
@@ -80,10 +71,13 @@ exports.handler = async (event, context) => {
         };
 
     } catch (error) {
-        console.error("Erro ao chamar a API do Gemini:", error);
+        // 8. Tratamento de Erro (Log e Resposta ao Frontend)
+        console.error("Erro ao processar requisição:", error);
+        
+        // Retornamos um erro 500 para o frontend
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Falha interna ao processar a IA. Verifique as chaves e permissões.', details: error.message })
+            body: JSON.stringify({ error: 'Falha interna ao processar a IA. Por favor, tente novamente.', details: error.message })
         };
     }
 };
