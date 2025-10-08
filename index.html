@@ -1,209 +1,265 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assistente de Documentos IA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Assistente do DouroGF 2026</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
-        #chatContainer { max-height: 90vh; }
-        #chatHistory {
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+        }
+
+        .chat-header {
+            background-color: #5b28a8;
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h1 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .chat-header span {
+            font-size: 0.8em;
+            background-color: #7d45d8;
+            padding: 4px 8px;
+            border-radius: 15px;
+        }
+
+        .chat-messages {
             flex-grow: 1;
+            padding: 15px;
             overflow-y: auto;
-            scroll-behavior: smooth;
+            display: flex;
+            flex-direction: column;
         }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 10px;
+            line-height: 1.4;
+        }
+
+        .ia-message {
+            background-color: #f1f0f0;
+            align-self: flex-start;
+            border-top-left-radius: 0;
+            color: #333;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+        }
+
         .user-message {
-            background-color: #e0e7ff; /* Indigo-100 */
-            border-radius: 12px 12px 2px 12px;
+            background-color: #5b28a8;
+            color: white;
+            align-self: flex-end;
+            border-top-right-radius: 0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
         }
-        .ai-message {
-            background-color: #f3f4f6; /* Gray-100 */
-            border-radius: 12px 12px 12px 2px;
+
+        .message strong {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 1em;
+            margin-right: 10px;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: #5b28a8;
+            outline: none;
+        }
+
+        .chat-input button {
+            background-color: #5b28a8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #7d45d8;
+        }
+
+        .error-message {
+            background-color: #ffe0e0;
+            color: #d8000c;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 15px;
+            border: 1px solid #d8000c;
+            font-size: 0.9em;
+            display: none; /* Esconder por padrão */
+        }
+        
+        .loading-dots {
+            font-weight: bold;
+            animation: blink 1.5s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0.2; }
+            50% { opacity: 1; }
+            100% { opacity: 0.2; }
         }
     </style>
 </head>
-<body class="p-4 flex justify-center items-center h-screen">
-
-    <div id="chatContainer" class="w-full max-w-lg md:h-[800px] h-full flex flex-col bg-white shadow-2xl rounded-xl overflow-hidden">
-
-        <header class="p-4 bg-indigo-600 text-white shadow-lg flex justify-between items-center">
-            <div>
-                <h1 class="text-xl font-bold">Assistente do DouroGF 2026</h1>
-                <p class="text-sm opacity-90">Pergunte sobre o regulamento!</p>
-            </div>
-            <div id="statusIndicator" class="text-xs bg-indigo-700 px-3 py-1 rounded-full opacity-80">Pronto</div>
-        </header>
-
-        <div id="chatHistory" class="p-4 space-y-4">
-            <div class="flex justify-start">
-                <div class="ai-message p-3 max-w-xs md:max-w-md shadow-md text-gray-800">
-                    <p class="font-bold text-indigo-700 mb-1">Assistente IA</p>
-                    <p>Olá! Pode perguntar-me qualquer coisa sobre o regulamento do Love Tiles Douro Granfondo 2026. Qual é a sua questão?</p>
-                </div>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>Assistente do DouroGF 2026</h1>
+            <span>Pronto</span>
+        </div>
+        <div class="chat-messages" id="messages">
+            <div class="message ia-message">
+                <strong>Assistente IA</strong>
+                Olá! Pode perguntar-me qualquer coisa sobre o regulamento do Love Tiles Douro Granfondo 2026. Qual é a sua questão?
             </div>
         </div>
+        
+        <div class="error-message" id="error-box"></div>
 
-        <div id="inputArea" class="p-4 border-t border-gray-200 flex items-center bg-white">
-            <input type="text" id="userInput" placeholder="Digite a sua pergunta aqui..."
-                class="flex-1 p-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                onkeypress="if(event.key === 'Enter') sendMessage()">
-            
-            <button id="sendButton" onclick="sendMessage()" title="Enviar Pergunta"
-                class="ml-3 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition duration-200 disabled:opacity-50 flex items-center justify-center w-12 h-12">
-                <svg id="sendIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-                <svg id="loadingSpinner" class="animate-spin h-6 w-6 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+        <form class="chat-input" id="chat-form">
+            <input type="text" id="user-input" placeholder="Digite a sua pergunta aqui..." required>
+            <button type="submit" id="send-button">
+                &rarr;
             </button>
-        </div>
-        <div id="messageBox" class="p-2 bg-red-100 border border-red-400 text-red-700 hidden text-sm"></div>
+        </form>
     </div>
 
     <script>
-        // =========================================================
-        // 1. CONFIGURAÇÃO DE CONTEXTO E API
-        // =========================================================
+        // ESTA É A LINHA CRÍTICA QUE TINHA DE SER CORRIGIDA
+        // O caminho da Vercel é /api/ seguido pelo nome da função.
+        const API_ENDPOINT = '/api/chat-assistente'; 
+        
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const messagesContainer = document.getElementById('messages');
+        const sendButton = document.getElementById('send-button');
+        const errorBox = document.getElementById('error-box');
 
-        // **IMPORTANTE:** Substitua pelo seu endpoint real. 
-        // Se usar uma Netlify Function, o caminho é tipicamente '/.netlify/functions/seu-nome-da-funcao'
-    const API_ENDPOINT = '/api/chat-assistente';
-
-        // O seu regulamento COMPLETO. A IA usará este texto como base de conhecimento.
-        const DOCUMENT_CONTEXT = `
-            Regulamento | Love Tiles Douro Granfondo 2026 Art. 1 O Love Tiles Douro Granfondo 2026 é uma Prova Aberta, com caráter competitivo amador, organizada pela Bikeservice, e disputada em conformidade com os Regulamentos da Federação Portuguesa de Ciclismo e o presente regulamento.
-            Art. 2 Os percursos disponíveis são Granfondo (150km) e Mediofondo (90km).
-            Art. 3 A inscrição inclui dorsal, seguro, abastecimentos e medalha de finisher. 
-            Art. 4 O valor da inscrição é de 60€ até 31 de Dezembro, subindo para 70€ após essa data.
-            Art. 5 É obrigatório o uso de capacete e o cumprimento das regras de trânsito.
-            Art. 6 As reclamações devem ser apresentadas por escrito no máximo até 30 minutos após o final do evento.
-            // ADICIONE O RESTO DO REGULAMENTO AQUI
-        `;
-
-        const chatHistory = document.getElementById('chatHistory');
-        const userInput = document.getElementById('userInput');
-        const sendButton = document.getElementById('sendButton');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const sendIcon = document.getElementById('sendIcon');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const messageBox = document.getElementById('messageBox');
-
-        // =========================================================
-        // 2. FUNÇÕES PRINCIPAIS DE INTERFACE
-        // =========================================================
-
-        /**
-         * Adiciona uma mensagem ao histórico do chat.
-         * @param {string} sender - 'user' ou 'ai'.
-         * @param {string} text - O conteúdo da mensagem.
-         */
-        function addMessage(sender, text) {
-            const isUser = sender === 'user';
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${isUser ? 'justify-end' : 'justify-start'}`;
-
-            const bubbleDiv = document.createElement('div');
-            bubbleDiv.className = `${isUser ? 'user-message' : 'ai-message'} p-3 max-w-xs md:max-w-md shadow-md text-gray-800`;
-
-            if (!isUser) {
-                const header = document.createElement('p');
-                header.className = 'font-bold text-indigo-700 mb-1';
-                header.textContent = 'Assistente IA';
-                bubbleDiv.appendChild(header);
-            }
-
-            const textP = document.createElement('p');
-            // Usamos innerHTML para permitir que a IA envie markdown básico (negrito, itálico)
-            textP.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
-            bubbleDiv.appendChild(textP);
-
-            messageDiv.appendChild(bubbleDiv);
-            chatHistory.appendChild(messageDiv);
-            // Rola o histórico para baixo automaticamente
-            chatHistory.scrollTop = chatHistory.scrollHeight;
-        }
-
-        /**
-         * Atualiza o estado da interface.
-         * @param {string} text - O novo texto de status.
-         * @param {boolean} isLoading - Se deve mostrar o spinner.
-         */
-        function updateStatus(text, isLoading = false) {
-            statusIndicator.textContent = text;
-            sendButton.disabled = isLoading;
-            sendIcon.classList.toggle('hidden', isLoading);
-            loadingSpinner.classList.toggle('hidden', !isLoading);
-        }
-
-        /**
-         * Mostra ou esconde mensagens de erro/alerta.
-         * @param {string|null} text - A mensagem de erro ou null para limpar.
-         */
-        function displayError(text) {
-            if (text) {
-                messageBox.textContent = `Erro: ${text}`;
-                messageBox.classList.remove('hidden');
-            } else {
-                messageBox.classList.add('hidden');
-            }
-        }
-
-        // =========================================================
-        // 3. LÓGICA DE ENVIO E INTEGRAÇÃO COM A IA (BACKEND)
-        // =========================================================
-
-        async function sendMessage() {
-            const query = userInput.value.trim();
-            displayError(null); // Limpa erros anteriores
-
-            if (query === '') return;
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const userQuery = userInput.value.trim();
+            if (!userQuery) return;
 
             // 1. Mostrar a mensagem do utilizador
-            addMessage('user', query);
+            appendMessage(userQuery, 'user');
             userInput.value = '';
+            errorBox.style.display = 'none';
             
-            updateStatus('A processar pergunta...', true);
+            // 2. Mostrar a mensagem de loading da IA
+            const loadingMessage = appendMessage('A responder <span class="loading-dots">...</span>', 'ia');
+
+            // Desativar input e botão
+            sendButton.disabled = true;
+            userInput.disabled = true;
 
             try {
-                // Chama o backend (Netlify Function, Lambda, etc.)
+                // 3. Fazer o pedido à nossa função Vercel
                 const response = await fetch(API_ENDPOINT, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // Enviamos a pergunta e o contexto do regulamento para a IA
-                    body: JSON.stringify({ 
-                        userQuery: query, 
-                        context: DOCUMENT_CONTEXT 
-                    })
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: userQuery }),
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Erro de rede: ${response.statusText}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP error! status: ${response.status}, Details: ${errorText}`);
                 }
 
                 const data = await response.json();
                 
-                // 2. Mostrar a resposta da IA
-                const aiResponse = data.aiResponse || "Desculpe, não consegui obter uma resposta clara. Por favor, tente reformular a pergunta.";
-                addMessage('ai', aiResponse);
+                // 4. Substituir a mensagem de loading pela resposta da IA
+                loadingMessage.querySelector('span').innerHTML = data.response;
 
             } catch (error) {
-                console.error("Erro ao comunicar com a IA:", error);
-                const errorMessage = "Não foi possível ligar ao assistente. Por favor, verifique a sua ligação ou se o 'API_ENDPOINT' está correto.";
-                displayError(errorMessage);
-                addMessage('ai', 'Falha na comunicação.');
+                console.error('Erro na comunicação com a API:', error);
+                
+                // 5. Substituir o loading por uma mensagem de falha
+                loadingMessage.querySelector('span').innerHTML = 'Falha na comunicação.';
+                
+                // 6. Mostrar o erro de ligação na caixa vermelha
+                errorBox.textContent = "Erro: Não foi possível ligar ao assistente. Por favor, verifique a sua ligação ou se o 'API_ENDPOINT' está correto.";
+                errorBox.style.display = 'block';
+
             } finally {
-                // 3. Restaurar o estado
-                updateStatus('Pronto', false);
+                // Reativar input e botão
+                sendButton.disabled = false;
+                userInput.disabled = false;
+                userInput.focus();
+                
+                // Scroll para a mensagem mais recente
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
+        });
+
+        function appendMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            
+            if (sender === 'user') {
+                messageDiv.classList.add('user-message');
+                messageDiv.innerHTML = text;
+            } else {
+                messageDiv.classList.add('ia-message');
+                messageDiv.innerHTML = `<strong>Assistente IA</strong> <span>${text}</span>`;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Scroll para o fim
+            
+            return messageDiv;
         }
-        
-        // NOTA: A funcionalidade de voz (STT/TTS) foi removida para simplificar 
-        // e focar na integração com a API de documento. Se quiser adicionar, 
-        // use a Web Speech API do navegador.
     </script>
 </body>
 </html>
