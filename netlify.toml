@@ -1,7 +1,2 @@
-[build]
-  # O Netlify irá instalar as dependências do package.json antes de construir/deployar
-  # Não é necessário comando de build para HTML simples, mas a configuração é importante
-  publish = "."  # Diretório de publicação (onde o index.html está)
-
 [functions]
   directory = "netlify/functions"
